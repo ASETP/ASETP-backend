@@ -1,7 +1,5 @@
 fastapi
 "uvicorn[standard]"
-llama-index
-langchain
 neo4j
 openai
 retry

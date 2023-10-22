@@ -5,15 +5,15 @@ from retry import retry
 
 
 class OpenAIChat:
-    def __init__(self, model: str = 'gpt-3.5-turbo'):
+    def __init__(self, model: str = "gpt-3.5-turbo"):
         self._model = model
 
     @retry(tries=3, delay=1)
     def query(
-            self,
-            prompt: Optional[str] = None,
-            messages: Optional[List[Dict[str, str]]] = None,
-            temperature: float = 0.0,
+        self,
+        prompt: Optional[str] = None,
+        messages: Optional[List[Dict[str, str]]] = None,
+        temperature: float = 0.0,
     ) -> str:
         if messages is None:
             assert prompt is not None, "Messages or prompt must be provided."
