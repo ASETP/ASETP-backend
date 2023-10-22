@@ -1,0 +1,11 @@
+fastapi
+"uvicorn[standard]"
+llama-index
+langchain
+neo4j
+openai
+retry
+matplotlib
+plotly
+scipy
+scikit-learn
