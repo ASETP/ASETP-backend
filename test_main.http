@@ -1,0 +1,9 @@
+# Test your FastAPI endpoints
+
+GET http://127.0.0.1:8000/
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/query/How%20do%20I%20add%20Google%20Application%20Credentials%20or%20Secret%20to%20Vercel%20Deployment
+Accept: application/json
