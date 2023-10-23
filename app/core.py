@@ -46,7 +46,11 @@ def get_knowledge_from_titles(
     graph: Neo4jGraph, titles: List[str]
 ) -> List[Dict[str, Any]]:  # {"title": "", "tags": "", "answer": ["", "", ...]}
     result = {}
-    cypher_query = "MATCH p=(q:Question)-[r:SolvedBy]->(a:Answer) WHERE q.title IN $titles RETURN p"
+    cypher_query = (
+        "MATCH p=(q:Question)-[r:SolvedBy]->(a:Answer)"
+        " WHERE q.title IN $titles "
+        "RETURN p"
+    )
 
     paths = graph.query(query=cypher_query, param_map={"titles": titles})
     print("Get all answers of reference question(s).")

@@ -39,8 +39,8 @@ class Neo4jGraph:
     ) -> None:
         try:
             import neo4j
-        except ImportError:
-            raise ImportError("Please install neo4j: pip install neo4j")
+        except ImportError as e:
+            raise ImportError("Please install neo4j: pip install neo4j") from e
         self._driver = neo4j.GraphDatabase.driver(url, auth=(username, password))
         self._database = database
         self._property_label = None
