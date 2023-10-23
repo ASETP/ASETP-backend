@@ -6,8 +6,6 @@ from openai.embeddings_utils import get_embedding, cosine_similarity
 from app.graph import Neo4jGraph
 from app.llm import OpenAIChat
 
-logging.basicConfig(level=logging.INFO)
-
 
 def search_titles(
     query: str, graph: Neo4jGraph, top: int = 1, limit: Optional[int] = None
@@ -103,6 +101,7 @@ def synthesize_answer(
 
 
 def answer(query: str, **kwargs) -> str:
+    logging.info(f"Receive query: {query}")
     graph = Neo4jGraph(**kwargs)
     titles = search_titles(query=query, graph=graph)
     knowledge = get_knowledge_from_titles(graph=graph, titles=titles)

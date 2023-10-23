@@ -4,8 +4,6 @@ from typing import Optional, List, Dict
 import openai
 from retry import retry
 
-logging.basicConfig(level=logging.INFO)
-
 
 class OpenAIChat:
     def __init__(self, model: str = "gpt-3.5-turbo"):
