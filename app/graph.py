@@ -3,6 +3,8 @@ from typing import Any, Dict, Optional
 
 from openai.embeddings_utils import get_embedding
 
+logging.basicConfig(level=logging.INFO)
+
 
 node_properties_query = """
 CALL apoc.meta.data()

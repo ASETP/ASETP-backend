@@ -6,6 +6,8 @@ from openai.embeddings_utils import get_embedding, cosine_similarity
 from app.graph import Neo4jGraph
 from app.llm import OpenAIChat
 
+logging.basicConfig(level=logging.INFO)
+
 
 def search_titles(
     query: str, graph: Neo4jGraph, top: int = 1, limit: Optional[int] = None
