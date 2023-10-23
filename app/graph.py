@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, Optional
 
 from openai.embeddings_utils import get_embedding
@@ -41,6 +42,7 @@ class Neo4jGraph:
             import neo4j
         except ImportError as e:
             raise ImportError("Please install neo4j: pip install neo4j") from e
+        logging.info(f"Connecting to Neo4j graph database: {url}")
         self._driver = neo4j.GraphDatabase.driver(url, auth=(username, password))
         self._database = database
         self._property_label = None
@@ -67,6 +69,7 @@ class Neo4jGraph:
                 "Please ensure the APOC plugin is installed in Neo4j and that "
                 "'apoc.meta.data()' is allowed in Neo4j configuration "
             )
+        logging.info(f"Succeed to connect to Neo4j: {url}")
 
     @property
     def client(self) -> Any:
@@ -94,12 +97,12 @@ class Neo4jGraph:
         if self.schema and not refresh:
             return self.schema
         self.refresh_schema()
-        print(f"get_schema() schema:\n{self.schema}")
         return self.schema
 
     def query(self, query: str, param_map: Optional[Dict[str, Any]] = None) -> Any:
         if param_map is None:
             param_map = {}
+        logging.info(f"Querying Neo4j graph database: {query} % {param_map}")
         with self._driver.session(database=self._database) as session:
             result = session.run(query, param_map)
             return [d.data() for d in result]
