@@ -1,12 +1,8 @@
-import os
-
 from fastapi import FastAPI
 
-from core import answer
+from app.core import answer
 
 app = FastAPI()
-
-os.environ["OPENAI_API_BASE"] = "https://api.openai-proxy.com/v1"
 
 
 @app.get("/")

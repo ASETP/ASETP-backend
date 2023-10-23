@@ -1,9 +1,10 @@
+import logging
 from typing import Any, Dict, List, Optional
 
 from openai.embeddings_utils import get_embedding, cosine_similarity
 
-from graph import Neo4jGraph
-from llm import OpenAIChat
+from app.graph import Neo4jGraph
+from app.llm import OpenAIChat
 
 
 def search_titles(
@@ -26,18 +27,18 @@ def search_titles(
         return sorted(title_list, key=custom_key, reverse=True)
 
     embedding = get_embedding(text=query, engine="text-embedding-ada-002")
-    print(f"Generate embedding for query: {query}")
+    logging.info(f"Generate embedding for query: {query}")
 
     titles = get_titles(graph_db=graph, max_limit=limit)
-    print(f"Get question entities from graph database.")
+    logging.info("Get question entities from graph database.")
 
     for title in titles:
         title["similarity"] = cosine_similarity(title["embedding"], embedding)
 
-    print("Calculate similarity for all question titles.")
+    logging.info("Finish calculating similarity for all question titles.")
 
     sorted_titles = sort_titles(title_list=titles)
-    print(f"Select most similar {top} question(s) as reference.")
+    logging.info(f"Select most similar {top} question(s) as reference.")
 
     return [t["text"] for t in sorted_titles[:top]]
 
@@ -53,7 +54,7 @@ def get_knowledge_from_titles(
     )
 
     paths = graph.query(query=cypher_query, param_map={"titles": titles})
-    print("Get all answers of reference question(s).")
+    logging.info("Get all answers of reference question(s).")
 
     for path in paths:
         q, r, a = path["p"][:3]
@@ -93,11 +94,10 @@ def synthesize_answer(
         ).format(query_str=query_str, context_str=context_str)
 
     llm = OpenAIChat(model=model_name)
-    print("Construct prompt with context from graph database.")
+    logging.info("Construct prompt with context from graph database.")
     prompt = construct_prompt(query_str=query, knowledge_list=knowledge)
-    print("Wait for response from LLM.")
     response = llm.query(prompt=prompt)
-    return response
+    return response.replace("\n\n", "\n")
 
 
 def answer(query: str, **kwargs) -> str:
@@ -105,11 +105,6 @@ def answer(query: str, **kwargs) -> str:
     titles = search_titles(query=query, graph=graph)
     knowledge = get_knowledge_from_titles(graph=graph, titles=titles)
     ans = synthesize_answer(query=query, knowledge=knowledge)
+    ans4log = ans.replace("\n", " ")
+    logging.info(f"Get answer: {ans4log}")
     return ans
-
-
-if __name__ == "__main__":
-    res = answer(
-        query="How do I add Google Application Credentials/Secret to Vercel Deployment?"
-    )
-    print(res)
