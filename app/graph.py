@@ -3,32 +3,30 @@ from typing import Any, Dict, Optional
 
 from openai.embeddings_utils import get_embedding
 
-logging.basicConfig(level=logging.INFO)
 
+node_properties_query = (
+    "CALL apoc.meta.data() "
+    "YIELD label, other, elementType, type, property "
+    'WHERE NOT type = "RELATIONSHIP" AND elementType = "node" '
+    "WITH label AS nodeLabels, collect({property:property, type:type}) AS properties "
+    "RETURN {labels: nodeLabels, properties: properties} AS output"
+)
 
-node_properties_query = """
-CALL apoc.meta.data()
-YIELD label, other, elementType, type, property
-WHERE NOT type = "RELATIONSHIP" AND elementType = "node"
-WITH label AS nodeLabels, collect({property:property, type:type}) AS properties
-RETURN {labels: nodeLabels, properties: properties} AS output
-"""
+rel_properties_query = (
+    "CALL apoc.meta.data() "
+    "YIELD label, other, elementType, type, property "
+    'WHERE NOT type = "RELATIONSHIP" AND elementType = "relationship" '
+    "WITH label AS nodeLabels, collect({property:property, type:type}) AS properties "
+    "RETURN {type: nodeLabels, properties: properties} AS output "
+)
 
-rel_properties_query = """
-CALL apoc.meta.data()
-YIELD label, other, elementType, type, property
-WHERE NOT type = "RELATIONSHIP" AND elementType = "relationship"
-WITH label AS nodeLabels, collect({property:property, type:type}) AS properties
-RETURN {type: nodeLabels, properties: properties} AS output
-"""
-
-rel_query = """
-CALL apoc.meta.data()
-YIELD label, other, elementType, type, property
-WHERE type = "RELATIONSHIP" AND elementType = "node"
-UNWIND other AS other_node
-RETURN "(:" + label + ")-[:" + property + "]->(:" + toString(other_node) + ")" AS output
-"""
+rel_query = (
+    "CALL apoc.meta.data() "
+    "YIELD label, other, elementType, type, property "
+    'WHERE type = "RELATIONSHIP" AND elementType = "node" '
+    "UNWIND other AS other_node "
+    'RETURN "(:" + label + ")-[:" + property + "]->(:" + toString(other_node) + ")" AS output'
+)
 
 
 class Neo4jGraph:
