@@ -34,3 +34,4 @@ jobs:
           docker rm asetp_backend_container || true
           docker rm asetp_backend_container || true
           docker run -d --name asetp_backend_container -p 8000:80 -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} asetp_backend
+          docker image prune -f
