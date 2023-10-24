@@ -31,11 +31,11 @@ class OpenAIChat:
         # catch context length / do not retry
         except openai.error.InvalidRequestError as e:
             logging.error(f"Error: {e}")
-            return str(f"Error: {e}")
+            return f"Error: {e}"
         # catch authorization errors / do not retry
         except openai.error.AuthenticationError:
             logging.error("Invalid OPENAI_API_KEY!")
             return "Error: The provided OpenAI API key is invalid"
         except Exception as e:
             logging.error(f"Retrying LLM call {e}")
-            raise e
+            raise Exception() from e
