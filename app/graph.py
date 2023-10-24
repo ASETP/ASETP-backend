@@ -79,9 +79,11 @@ class Neo4jGraph:
         """
         Refreshes the Neo4j graph schema information.
         """
-        node_properties = self.query(node_properties_query)
-        relationships_properties = self.query(rel_properties_query)
-        relationships = self.query(rel_query)
+        logging.info("Refreshing graph database schema.")
+
+        node_properties = self.query(node_properties_query, verbose=False)
+        relationships_properties = self.query(rel_properties_query, verbose=False)
+        relationships = self.query(rel_query, verbose=False)
 
         self.schema = f"""
         Node properties are the following:
@@ -99,10 +101,16 @@ class Neo4jGraph:
         self.refresh_schema()
         return self.schema
 
-    def query(self, query: str, param_map: Optional[Dict[str, Any]] = None) -> Any:
+    def query(
+        self,
+        query: str,
+        param_map: Optional[Dict[str, Any]] = None,
+        verbose: bool = True,
+    ) -> Any:
         if param_map is None:
             param_map = {}
-        logging.info(f"Querying Neo4j graph database: {query} % {param_map}")
+        if verbose:
+            logging.info(f"Querying Neo4j graph database: {query} % {param_map}")
         with self._driver.session(database=self._database) as session:
             result = session.run(query, param_map)
             return [d.data() for d in result]

@@ -15,6 +15,8 @@ def search_titles(
     ) -> List[Dict[str, Any]]:  # {"text": "", "embedding": []}
         result = []
         cypher_query = "MATCH (n:Question) RETURN n"
+        if max_limit is not None:
+            cypher_query += f" LIMIT {max_limit}"
         questions = graph_db.query(query=cypher_query)
         for q in questions:
             result.append({"text": q["n"]["title"], "embedding": q["n"]["embedding"]})
