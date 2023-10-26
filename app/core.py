@@ -8,7 +8,11 @@ from app.llm import OpenAIChat
 
 
 def search_titles(
-    query: str, graph: Neo4jGraph, top: int = 1, limit: Optional[int] = None
+    query: str,
+    graph: Neo4jGraph,
+    top: int = 3,
+    sim_thresholds: float = 0.9,
+    limit: Optional[int] = None,
 ) -> List[str]:
     def get_titles(
         graph_db: Neo4jGraph, max_limit: Optional[int] = None
@@ -42,7 +46,7 @@ def search_titles(
     sorted_titles = sort_titles(title_list=titles)
     logging.info(f"Select most similar {top} question(s) as reference.")
 
-    return [t["text"] for t in sorted_titles[:top]]
+    return [t["text"] for t in sorted_titles[:top] if t["similarity"] > sim_thresholds]
 
 
 def get_knowledge_from_titles(
@@ -106,6 +110,8 @@ def answer(query: str, **kwargs) -> str:
     logging.info(f"Receive query: {query}")
     graph = Neo4jGraph(**kwargs)
     titles = search_titles(query=query, graph=graph)
+    if len(titles) == 0:
+        return "Fail to get related information in knowledge graph."
     knowledge = get_knowledge_from_titles(graph=graph, titles=titles)
     ans = synthesize_answer(query=query, knowledge=knowledge)
     ans4log = ans.replace("\n", " ")
