@@ -36,17 +36,23 @@ def search_titles(
     logging.info(f"Generate embedding for query: {query}")
 
     titles = get_titles(graph_db=graph, max_limit=limit)
+    if len(titles) == 0:
+        return []
     logging.info("Get question entities from graph database.")
 
     for title in titles:
         title["similarity"] = cosine_similarity(title["embedding"], embedding)
 
     logging.info("Finish calculating similarity for all question titles.")
+    logging.info(f"Select at most {top} similar question(s) as reference.")
 
-    sorted_titles = sort_titles(title_list=titles)
-    logging.info(f"Select most similar {top} question(s) as reference.")
+    if len(titles) > top:
+        sorted_titles = sort_titles(title_list=titles)
+        return [
+            t["text"] for t in sorted_titles[:top] if t["similarity"] > sim_thresholds
+        ]
 
-    return [t["text"] for t in sorted_titles[:top] if t["similarity"] > sim_thresholds]
+    return [t["text"] for t in titles if t["similarity"] > sim_thresholds]
 
 
 def get_knowledge_from_titles(
@@ -112,6 +118,7 @@ def answer(query: str, **kwargs) -> str:
     titles = search_titles(query=query, graph=graph)
     if len(titles) == 0:
         return "Fail to get related information in knowledge graph."
+    logging.info(f"Get {len(titles)} related question(s) from knowledge graph.")
     knowledge = get_knowledge_from_titles(graph=graph, titles=titles)
     ans = synthesize_answer(query=query, knowledge=knowledge)
     ans4log = ans.replace("\n", " ")
