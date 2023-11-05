@@ -36,6 +36,15 @@ class TestCore(unittest.TestCase):
         self.assertEqual(len(result), 3)
         graph.client.close()
 
+    def test_search_titles_3(self):
+        graph = Neo4jGraph()
+        titles = search_titles(
+            query="111",
+            graph=graph,
+        )
+        self.assertEqual(len(titles), 0)
+        graph.client.close()
+
     def test_get_knowledge_from_titles_1(self):
         graph = Neo4jGraph()
         result = get_knowledge_from_titles(
