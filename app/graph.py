@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict, Optional
 
+from func_timeout import func_set_timeout
 from openai.embeddings_utils import get_embedding
 
 
@@ -101,6 +102,7 @@ class Neo4jGraph:
         self.refresh_schema()
         return self.schema
 
+    @func_set_timeout(20)
     def query(
         self,
         query: str,

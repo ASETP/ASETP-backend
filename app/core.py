@@ -10,7 +10,7 @@ from app.llm import OpenAIChat
 def search_titles(
     query: str,
     graph: Neo4jGraph,
-    top: int = 3,
+    top: int = 2,
     sim_thresholds: float = 0.9,
     limit: Optional[int] = None,
 ) -> List[str]:
@@ -36,8 +36,6 @@ def search_titles(
     logging.info(f"Generate embedding for query: {query}")
 
     titles = get_titles(graph_db=graph, max_limit=limit)
-    if len(titles) == 0:
-        return []
     logging.info("Get question entities from graph database.")
 
     for title in titles:
