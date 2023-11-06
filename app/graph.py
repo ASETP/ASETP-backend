@@ -102,7 +102,7 @@ class Neo4jGraph:
         self.refresh_schema()
         return self.schema
 
-    @func_set_timeout(15)
+    @func_set_timeout(30)
     def query(
         self,
         query: str,
