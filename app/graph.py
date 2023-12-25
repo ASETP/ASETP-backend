@@ -34,8 +34,8 @@ class Neo4jGraph:
     def __init__(
         self,
         username: str = "neo4j",
-        password: str = "cV1HM2kz3eG3t4F8WgACtyduISFFzybwVz_nAkc0LlU",
-        url: str = "neo4j+s://7faed8a0.databases.neo4j.io",
+        password: str = "_BBksrS91jzrUwAQRV9RCg2w7IKhzFwtrE6blt6z6b8",
+        url: str = "neo4j+s://8a9706db.databases.neo4j.io",
         database: str = "neo4j",
         **kwargs: Any,
     ) -> None:
@@ -131,7 +131,7 @@ class Neo4jGraph:
             lines = f.readlines()
         f.close()
         for i, title in enumerate(lines):
-            embedding = get_embedding(text=title, model="text-embedding-ada-002")
+            embedding = get_embedding(text=title, engine="text-embedding-ada-002")
             print(f"Embedding created: title-{i}")
             query = (
                 f"MATCH (n:Question) WHERE n.title=$title SET n.embedding=$embedding"
