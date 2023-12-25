@@ -83,8 +83,10 @@ def get_knowledge_from_titles(
 
 
 def synthesize_answer(
-    query: str, knowledge: List[Dict[str, Any]],
-    need_ans: bool = True, model_name: str = "gpt-3.5-turbo",
+    query: str,
+    knowledge: List[Dict[str, Any]],
+    need_ans: bool = True,
+    model_name: str = "gpt-3.5-turbo",
 ) -> str:
     def construct_prompt(query_str: str, knowledge_list: List[Dict[str, Any]]) -> str:
         context_str = ""
@@ -123,7 +125,9 @@ def answer(query: str, **kwargs) -> str:
     graph = Neo4jGraph(**kwargs)
     is_trend = is_trend_query(query=query)
     top, sim_threshold = (50, 0.3) if is_trend else (2, 0.9)
-    titles = search_titles(query=query, graph=graph, top=top, sim_thresholds=sim_threshold)
+    titles = search_titles(
+        query=query, graph=graph, top=top, sim_thresholds=sim_threshold
+    )
     if len(titles) == 0:
         return "Fail to get related information in knowledge graph."
     logging.info(f"Get {len(titles)} related question(s) from knowledge graph.")
