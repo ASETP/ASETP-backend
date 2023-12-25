@@ -72,6 +72,8 @@ def get_knowledge_from_titles(
             result[q["title"]] = {
                 "title": q["title"],
                 "tags": q["tags"],
+                "view_count": q["view_count"],
+                "date": q["date"],
                 "answer": [a["content"]],
             }
         else:
@@ -81,17 +83,23 @@ def get_knowledge_from_titles(
 
 
 def synthesize_answer(
-    query: str, knowledge: List[Dict[str, Any]], model_name: str = "gpt-3.5-turbo"
+    query: str, knowledge: List[Dict[str, Any]],
+    need_ans: bool = True, model_name: str = "gpt-3.5-turbo",
 ) -> str:
     def construct_prompt(query_str: str, knowledge_list: List[Dict[str, Any]]) -> str:
         context_str = ""
         for line in knowledge_list:
             title_str = f"Title: {line['title']}\n"
             tags_str = f"Tags: {line['tags']}\n"
+            view_str = f"View count: {line['view_count']}\n"
+            date_str = f"Date: {line['date']}"
             answer_str = "\n".join(
                 f"Answer{i+1}: {ans}" for i, ans in enumerate(line["answer"])
             )
-            context_str += title_str + tags_str + answer_str + "\n"
+            if need_ans:
+                context_str += title_str + tags_str + answer_str + "\n"
+            else:
+                context_str += title_str + tags_str + view_str + date_str + "\n"
 
         return (
             "Context information is below.\n"
@@ -113,12 +121,27 @@ def synthesize_answer(
 def answer(query: str, **kwargs) -> str:
     logging.info(f"Receive query: {query}")
     graph = Neo4jGraph(**kwargs)
-    titles = search_titles(query=query, graph=graph)
+    is_trend = is_trend_query(query=query)
+    top, sim_threshold = (50, 0.3) if is_trend else (2, 0.9)
+    titles = search_titles(query=query, graph=graph, top=top, sim_thresholds=sim_threshold)
     if len(titles) == 0:
         return "Fail to get related information in knowledge graph."
     logging.info(f"Get {len(titles)} related question(s) from knowledge graph.")
     knowledge = get_knowledge_from_titles(graph=graph, titles=titles)
-    ans = synthesize_answer(query=query, knowledge=knowledge)
+    ans = synthesize_answer(query=query, knowledge=knowledge, need_ans=not is_trend)
     ans4log = ans.replace("\n", " ")
     logging.info(f"Get answer: {ans4log}")
     return ans
+
+
+def is_trend_query(query: str) -> bool:
+    llm = OpenAIChat()
+    response = llm.query(
+        prompt=(
+            f"Here is a query from user: {query}.\n"
+            "If it queries about technology trend, answer YES. "
+            "Otherwise, answer NO.\n"
+            "Don't give any extra answer."
+        )
+    )
+    return "YES" in response
